@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════════════════
+#  PUBLISHED: the dashboard in site/ and this file. NOTHING ELSE.
+#  Everything below stays on this machine.
+# ═══════════════════════════════════════════════════════════════════════
+
+# ── capture automation — local only, NEVER publish ────────────────────
+# The whole toolchain that drives and reads the phone. Ignored wholesale
+# (allowlist style) so a new tool added later is private by default rather
+# than published by accident.
+tools/
+Capture Console.command
+static-server.mjs
+.claude/
+
+# ── captured data ─────────────────────────────────────────────────────
+# Screenshots of friend profiles, per-run CSVs, corrections and the merge
+# cache. Real people's handles and stats — none of it leaves the machine.
+captures/
+/data/
+*-with-names.csv
+
+# The cap-80 (v2) dataset is derived from those captures and is not published
+# until that phase is finished and deliberately released.
+site/data/era2.json
+
+# ── local-only working notes ──────────────────────────────────────────
+THEME-HANDOFF.md
+DEV-HANDOFF.md
+
+# ── OS / editor cruft ─────────────────────────────────────────────────
+.DS_Store
+**/.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ── python ────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+
+# ── node ──────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*

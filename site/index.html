@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POGO Trainer Model — what trainer stats really look like</title>
+<meta name="description" content="390 real Pokémon GO trainers, plotted. See where your stats land, why a straight line fails at the level cap, and what the endgame actually looks like.">
+<!-- dark-only by design: GO teal + Pokémon yellow can't pass contrast in a light theme -->
+<meta name="theme-color" content="#0a0d1c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav id="topnav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top"><span class="pokeball-dot"></span>POGO Trainer Model</a>
+    <div class="nav-pages">
+      <a href="#cohort">Cohort</a>
+      <a href="#explorer">Explorer</a>
+      <a href="#standing">Where you stand</a>
+      <a href="#wall">The&nbsp;50 wall</a>
+      <a href="#report">Report card</a>
+      <a href="#playstyle">Playstyle</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+  <header class="hero">
+    <div class="eyebrow">Observation Deck / Trainer Model</div>
+    <h1>390 real trainers.<br>Here's what the numbers <span class="hl">actually</span> look like.</h1>
+    <p class="lede">
+      A friends-list cohort of Pokémon GO trainers — every level, every catch, every
+      kilometre walked. Find out where your own stats land, and see why the tidy
+      straight-line model this project started with falls apart exactly where most
+      players live.
+    </p>
+    <div class="chip-row" id="hero-chips"></div>
+  </header>
+
+  <!-- ── 1 · cohort ─────────────────────────────────────────────────── -->
+  <section class="chapter" id="cohort">
+    <div class="sec-head">
+      <div class="eyebrow">01 — The cohort</div>
+      <h2>Who's in this dataset</h2>
+      <p>
+        Every trainer here came from one person's friends list, captured as a single
+        snapshot. That makes it a real sample of real players — and also a biased one.
+        Both things are worth knowing before you read anything else on this page.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-body">
+        <div class="stat-grid" id="cohort-stats"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <span class="panel-title">Trainers per level</span>
+        <span class="chip"><span class="dot"></span>n = <b id="hist-n">—</b></span>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap short"><canvas id="chart-levels"></canvas></div>
+        <div class="callout" style="margin-top:16px">
+          The shape here drives everything else: <b>the sample is top-heavy.</b> Nearly
+          one trainer in five sits at level 50, and only a handful are below level 33.
+          A model trained on this is a model of committed players, not of everyone.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome"><span class="panel-title">Known limitations</span></div>
+      <div class="panel-body">
+        <div class="stat-grid">
+          <div class="stat">
+            <span class="label">Sampling</span>
+            <div class="sub">A friends list, not a random sample. Skewed toward active, social players who add friends — the least active players are largely invisible here.</div>
+          </div>
+          <div class="stat">
+            <span class="label">Level cap censoring</span>
+            <div class="sub">Level 50 is the ceiling. Trainers keep playing past it but stop levelling, so for <span id="lim-cap">—</span> of this sample, level says nothing at all about how much they've played.</div>
+          </div>
+          <div class="stat">
+            <span class="label">Single snapshot</span>
+            <div class="sub">One capture, no timestamps per row. Totals are cumulative and lifetime — there's no way to tell a five-year casual from a one-year grinder.</div>
+          </div>
+          <div class="stat">
+            <span class="label">Assumed units</span>
+            <div class="sub">Distance is recorded as a bare number and assumed to be kilometres. The original capture didn't record the unit setting.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2 · explorer ───────────────────────────────────────────────── -->
+  <section class="chapter" id="explorer">
+    <div class="sec-head">
+      <div class="eyebrow">02 — The explorer</div>
+      <h2>Level vs. everything else</h2>
+      <p>
+        Each dot is one trainer. Switch the metric, add fitted models, and — this is the
+        interesting part — change how outliers get handled and watch the fit move.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <div class="ctl">
+          <span class="ctl-label">Metric</span>
+          <div class="seg" id="seg-metric" role="group" aria-label="Choose metric">
+            <button data-metric="caught" aria-pressed="true">Pokémon caught</button>
+            <button data-metric="battles" aria-pressed="false">Battles won</button>
+            <button data-metric="distance" aria-pressed="false">Distance walked</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <span class="ctl-label">Outliers</span>
+          <div class="seg" id="seg-outlier" role="group" aria-label="Outlier handling">
+            <button data-mode="none" aria-pressed="true">Keep all</button>
+            <button data-mode="iqr" aria-pressed="false">IQR (notebook)</button>
+            <button data-mode="winsor" aria-pressed="false">Winsorize</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="toggles" style="margin-bottom:14px">
+          <label><input type="checkbox" id="fit-linear" checked><span class="swatch swatch--linear"></span> Linear fit</label>
+          <label><input type="checkbox" id="fit-log" checked><span class="swatch swatch--log"></span> Log-linear fit</label>
+          <label><input type="checkbox" id="fit-median"><span class="swatch swatch--median"></span> Median per level</label>
+          <label><input type="checkbox" id="scale-log"> Log scale (y-axis)</label>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-scatter"></canvas></div>
+        <div class="readout" id="explorer-readout" style="margin-top:16px"></div>
+        <div class="callout red" id="explorer-note" style="margin-top:14px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3 · where you stand ────────────────────────────────────────── -->
+  <section class="chapter" id="standing">
+    <div class="sec-head">
+      <div class="eyebrow">03 — Benchmark yourself</div>
+      <h2>Where do you stand?</h2>
+      <p>
+        Enter your own numbers. You'll be ranked against the trainers in your level band
+        — comparing a level 50 to a level 35 tells you nothing, so we don't.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-body">
+        <div class="form-row">
+          <div class="field"><label for="in-level">Your level</label><input type="number" id="in-level" min="1" max="50" step="1" value="40"></div>
+          <div class="field"><label for="in-caught">Pokémon caught</label><input type="number" id="in-caught" min="0" step="1" value="48000"></div>
+          <div class="field"><label for="in-battles">Battles won</label><input type="number" id="in-battles" min="0" step="1" value="1250"></div>
+          <div class="field"><label for="in-distance">Distance walked (km)</label><input type="number" id="in-distance" min="0" step="0.1" value="5200"></div>
+          <div class="field"><button class="btn" id="btn-rank" style="width:100%">Rank me</button></div>
+        </div>
+        <div id="rank-out" style="margin-top:20px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4 · the level 50 wall ──────────────────────────────────────── -->
+  <section class="chapter" id="wall">
+    <div class="sec-head">
+      <div class="eyebrow">04 — The ceiling</div>
+      <h2>The level-50 wall</h2>
+      <p>
+        Level 50 is the last level. Trainers who reach it carry on playing for years, but
+        the number next to their name never moves again. That single fact puts a hard
+        ceiling on how good <em>any</em> level-based model can ever be.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <span class="panel-title">Spread within level 50</span>
+        <span class="chip teal"><span class="dot"></span><b id="wall-n">—</b> trainers at the cap</span>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap short"><canvas id="chart-wall"></canvas></div>
+        <div class="table-scroll" style="margin-top:18px"><table id="tbl-wall"></table></div>
+        <div class="callout" style="margin-top:16px" id="wall-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5 · report card ────────────────────────────────────────────── -->
+  <section class="chapter" id="report">
+    <div class="sec-head">
+      <div class="eyebrow">05 — Model report card</div>
+      <h2>How well does any of this actually predict?</h2>
+      <p>
+        This project began as a linear regression of level against each stat. Here is
+        that model marked honestly against two alternatives, and against reality.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome"><span class="panel-title">Goodness of fit — R², all 390 trainers</span></div>
+      <div class="panel-body">
+        <div class="table-scroll"><table id="tbl-r2"></table></div>
+        <div class="callout teal" style="margin-top:16px">
+          <b>R² is the share of variation the model explains</b> — 1.00 is perfect, 0.00 is
+          no better than guessing the average. Growth in this game compounds, so fitting a
+          straight line to it leaves a lot on the table. A log-linear fit beats the straight
+          line on every metric — though simply taking the median of each level beats both on
+          catches and battles, and none of them can get past the ceiling described above.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <span class="panel-title">The original predictions vs. reality</span>
+        <div class="ctl">
+          <div class="seg" id="seg-report" role="group" aria-label="Choose metric">
+            <button data-metric="caught" aria-pressed="true">Caught</button>
+            <button data-metric="battles" aria-pressed="false">Battles</button>
+            <button data-metric="distance" aria-pressed="false">Distance</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap short"><canvas id="chart-report"></canvas></div>
+        <div class="table-scroll" style="margin-top:18px"><table id="tbl-report"></table></div>
+        <div class="callout red" style="margin-top:16px" id="report-note"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6 · playstyle ──────────────────────────────────────────────── -->
+  <section class="chapter" id="playstyle">
+    <div class="sec-head">
+      <div class="eyebrow">06 — Playstyle</div>
+      <h2>Ratios don't care what level you are</h2>
+      <p>
+        Catches per kilometre and battles per catch describe <em>how</em> someone plays
+        rather than how far along they are — so they sail straight past the level-cap
+        problem. This is where the dataset is at its most useful.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <span class="panel-title">Catches per km vs. battles per 1,000 catches</span>
+        <span class="chip"><span class="dot"></span>colour = level</span>
+      </div>
+      <div class="panel-body">
+        <div class="chip-row" id="playstyle-key" style="margin:0 0 14px"></div>
+        <div class="chart-wrap"><canvas id="chart-playstyle"></canvas></div>
+        <div class="stat-grid" id="playstyle-stats" style="margin-top:18px"></div>
+        <div class="callout" style="margin-top:16px">
+          <b>Reading this:</b> far right = catches a lot per kilometre walked (lures,
+          incense, dense city play). Far top = battles heavily relative to catching
+          (raiders and PvP players). Bottom left = walkers who cover ground without
+          farming it. A third axis — catches per PokéStop — arrives with the next data
+          capture.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7 · the new era (cap 80) — appears only once era2.json exists ── -->
+  <section class="chapter" id="era2" hidden>
+    <div class="sec-head">
+      <div class="eyebrow">07 — The new era</div>
+      <h2>Level 80: the rebalanced game</h2>
+      <p>
+        Everything above describes the 2025 game, when 50 was the ceiling. Pokémon GO has
+        since rebalanced XP and raised the cap to 80 — so levels aren't comparable across
+        the eras, and this chapter starts the record over with a fresh capture of the same
+        friends list. Typical catches, battles and distance at every level, post-rebalance.
+      </p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <div class="ctl">
+          <span class="ctl-label">Metric</span>
+          <div class="seg" id="seg-era2" role="group" aria-label="Choose metric">
+            <button data-metric="caught" aria-pressed="true">Pokémon caught</button>
+            <button data-metric="battles" aria-pressed="false">Battles won</button>
+            <button data-metric="distance" aria-pressed="false">Distance walked</button>
+          </div>
+        </div>
+        <span class="chip teal"><span class="dot"></span>captured <b id="era2-date">—</b></span>
+      </div>
+      <div class="panel-body">
+        <div class="chip-row" id="era2-chips" style="margin:0 0 14px"></div>
+        <div class="chart-wrap"><canvas id="chart-era2"></canvas></div>
+        <div class="callout" style="margin-top:16px">
+          <b>Reading this:</b> the line is the median trainer at each level; the band spans
+          the middle half of them (25th–75th percentile). Bars along the bottom show how
+          many trainers sit at each level — thin levels mean noisier numbers.
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <a href="https://observation-deck.netlify.app/">Observation Deck</a> &middot;
+  <a href="https://github.com/00xJS">JS</a> &middot;
+  <a href="https://github.com/00xJS/pogo-trainer-model">GitHub</a>
+  <div class="fine">
+    Built from a personal friends-list snapshot of 390 trainers, captured February 2025.
+    Handles are anonymised — every stat is real, no individual is identified.
+    Independent fan project — not affiliated with, endorsed by, or
+    sponsored by Niantic, Scopely, Nintendo, or The Pokémon Company. Pokémon and Pokémon GO
+    are trademarks of their respective owners.
+  </div>
+</footer>
+
+<script src="vendor/chart.umd.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
