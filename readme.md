@@ -7,7 +7,8 @@ three in-game stats. It's now an interactive dashboard built on the same data, p
 written-up account of where the original model went wrong — which turned out to be the
 more interesting result.
 
-**[→ Open the dashboard](https://pogo-trainer-model.netlify.app/)**  ·  runs entirely in your browser, no backend, no tracking
+Runs entirely in your browser — no backend, no tracking, no external requests.
+See [Running it locally](#running-it-locally); a hosted link goes here once it's deployed.
 
 ---
 
