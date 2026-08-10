@@ -28,7 +28,7 @@ See [Running it locally](#running-it-locally); a hosted link goes here once it's
 A snapshot of one personal friends list, captured **February 2025**, when the level cap
 was still 50.
 
-**Handles are anonymised** (`Trainer 001` … `Trainer 390`). Every stat is real and
+**Handles are replaced** with `Trainer 001` … `Trainer 390`. Every stat is real and
 unmodified — the people behind them didn't sign up to be showcased by name, and the
 analysis never needed their handles.
 
