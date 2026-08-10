@@ -1,7 +1,8 @@
 [build]
   # 100% static — the regression, percentiles and every chart are computed
   # client-side from site/data/trainers.json. No build step, no server.
-  # Regenerate the data file with: node tools/build-dataset.mjs
+  # site/data/trainers.json is a committed build artifact; its generator is kept
+  # local and is deliberately not part of this repository.
   publish = "site"
   command = ""
 

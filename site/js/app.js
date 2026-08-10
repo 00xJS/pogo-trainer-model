@@ -324,7 +324,10 @@ function bandFor(level) {
 }
 
 function renderRank() {
-  const level = Math.max(1, Math.min(50, Math.round(+$("in-level").value || 0)));
+  // Clamp to this dataset's cap, not a literal — the 2025 cohort is cap-50, and
+  // hardcoding it would silently mis-rank anyone typing a modern (cap-80) level.
+  const cap = DATA.meta.levelCap;
+  const level = Math.max(1, Math.min(cap, Math.round(+$("in-level").value || 0)));
   $("in-level").value = level;
   const band = bandFor(level);
   const peers = DATA.trainers.filter((r) => r.level >= band.lo && r.level <= band.hi);
@@ -616,21 +619,34 @@ function renderEra2() {
 
   $("era2-date").textContent = ERA2.meta.latestCapture ?? "—";
   const capped = levels.find((l) => l.level === ERA2.meta.levelCap);
+  const sparseCount = levels.filter((l) => l.sparse).length;
   $("era2-chips").innerHTML = [
     `<span class="chip ok"><span class="dot"></span><b>${fmt(ERA2.meta.n)}</b> trainers</span>`,
     `<span class="chip"><span class="dot"></span>levels <b>${labels[0]}–${labels.at(-1)}</b></span>`,
     capped ? `<span class="chip teal"><span class="dot"></span><b>${capped.n}</b> at the level-80 cap</span>` : "",
     ERA2.meta.captures.length > 1 ? `<span class="chip"><span class="dot"></span><b>${ERA2.meta.captures.length}</b> captures</span>` : "",
+    // Say what's missing, not just what's here — same honesty as the era-1 limitations row.
+    ERA2.meta.nExcludedPendingReview
+      ? `<span class="chip warn"><span class="dot"></span><b>${fmt(ERA2.meta.nExcludedPendingReview)}</b> excluded pending review</span>` : "",
+    sparseCount ? `<span class="chip warn"><span class="dot"></span><b>${sparseCount}</b> thin levels (n&lt;${ERA2.meta.minNForQuartiles ?? 5})</span>` : "",
   ].join("");
 
   mount("chart-era2", {
     data: {
       labels,
       datasets: [
+        // Levels with too few trainers for a meaningful quartile are drawn as
+        // hollow points: the median is still shown, but it shouldn't read with
+        // the same weight as a level backed by dozens of people.
         { type: "line", label: `Median ${M.lower}`, data: levels.map((l) => l[M.key].median),
-          borderColor: M.color, backgroundColor: M.color, borderWidth: 2.5, pointRadius: 3, tension: .25, yAxisID: "y", order: 1 },
+          borderColor: M.color, backgroundColor: M.color, borderWidth: 2.5,
+          pointRadius: levels.map((l) => (l.sparse ? 2.5 : 3)),
+          pointStyle: levels.map((l) => (l.sparse ? "circle" : "circle")),
+          pointBackgroundColor: levels.map((l) => (l.sparse ? "transparent" : M.color)),
+          pointBorderColor: M.color,
+          tension: .25, yAxisID: "y", order: 1 },
         { type: "line", label: "75th percentile", data: levels.map((l) => l[M.key].p75),
-          borderColor: "transparent", backgroundColor: "rgba(65,216,198,.14)", pointRadius: 0, fill: "+1", tension: .25, yAxisID: "y", order: 2 },
+          borderColor: "transparent", backgroundColor: M.color + "24", pointRadius: 0, fill: "+1", tension: .25, yAxisID: "y", order: 2 },
         { type: "line", label: "25th percentile", data: levels.map((l) => l[M.key].p25),
           borderColor: "transparent", pointRadius: 0, tension: .25, yAxisID: "y", order: 2 },
         { type: "bar", label: "Trainers at level", data: levels.map((l) => l.n),
@@ -697,7 +713,7 @@ async function init() {
   } catch (err) {
     document.querySelector("main").insertAdjacentHTML("afterbegin",
       `<div class="callout red" style="margin-top:100px">Could not load <code>data/trainers.json</code> (${err.message}).
-       This page needs to be served over HTTP — run <code>node static-server.mjs site 8771</code> from the project root.</div>`);
+       This page needs to be served over HTTP — run <code>cd site &amp;&amp; python3 -m http.server 8771</code> and open the address it prints.</div>`);
     return;
   }
 
