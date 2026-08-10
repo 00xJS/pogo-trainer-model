@@ -635,16 +635,12 @@ function renderEra2() {
     data: {
       labels,
       datasets: [
-        // Levels with too few trainers for a meaningful quartile are drawn as
-        // hollow points: the median is still shown, but it shouldn't read with
-        // the same weight as a level backed by dozens of people.
+        // Levels below the minimum-n threshold carry null stats from the build,
+        // so the line simply breaks there — an honest gap rather than a
+        // confident stroke through a level backed by one person.
         { type: "line", label: `Median ${M.lower}`, data: levels.map((l) => l[M.key].median),
           borderColor: M.color, backgroundColor: M.color, borderWidth: 2.5,
-          pointRadius: levels.map((l) => (l.sparse ? 2.5 : 3)),
-          pointStyle: levels.map((l) => (l.sparse ? "circle" : "circle")),
-          pointBackgroundColor: levels.map((l) => (l.sparse ? "transparent" : M.color)),
-          pointBorderColor: M.color,
-          tension: .25, yAxisID: "y", order: 1 },
+          pointRadius: 3, spanGaps: false, tension: .25, yAxisID: "y", order: 1 },
         { type: "line", label: "75th percentile", data: levels.map((l) => l[M.key].p75),
           borderColor: "transparent", backgroundColor: M.color + "24", pointRadius: 0, fill: "+1", tension: .25, yAxisID: "y", order: 2 },
         { type: "line", label: "25th percentile", data: levels.map((l) => l[M.key].p25),
