@@ -1,6 +1,6 @@
 # POGO Trainer Model
 
-**One friends list, two eras of Pokémon GO — 390 trainers under the old level-50 cap, 491 under the new cap of 80 — and an honest look at what trainer level can and can't predict.**
+**One friends list, two eras of Pokémon GO — 390 trainers under the old level-50 cap, 493 under the new cap of 80 — and an honest look at what trainer level can and can't predict.**
 
 This started as a Jupyter notebook fitting a linear regression of trainer level against
 three in-game stats. It's now an interactive dashboard built on the same data, plus a
