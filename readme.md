@@ -1,5 +1,11 @@
 # POGO Trainer Model
 
+> **📦 This repository is archived.** The Trainer Model now lives inside
+> [POGO Metrics](https://pogo-metrics.netlify.app/) as its research layer:
+> **<https://pogo-metrics.netlify.app/trainer-model.html>** — same data, same
+> chapters, and where all future updates land. This repo stays up as the
+> historical record of how the model was built.
+
 **One friends list, two eras of Pokémon GO — 390 trainers under the old level-50 cap, 493 under the new cap of 80 — and an honest look at what trainer level can and can't predict.**
 
 This started as a Jupyter notebook fitting a linear regression of trainer level against
@@ -8,7 +14,8 @@ written-up account of where the original model went wrong — which turned out t
 more interesting result.
 
 Runs entirely in your browser — no backend, no tracking, no external requests.
-See [Running it locally](#running-it-locally); a hosted link goes here once it's deployed.
+The live version is hosted at [pogo-metrics.netlify.app/trainer-model.html](https://pogo-metrics.netlify.app/trainer-model.html);
+to run this repo's copy, see [Running it locally](#running-it-locally).
 
 ---
 
