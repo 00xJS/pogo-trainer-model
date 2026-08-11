@@ -19,10 +19,6 @@ captures/
 /data/
 *-with-names.csv
 
-# The cap-80 (v2) dataset is derived from those captures and is not published
-# until that phase is finished and deliberately released.
-site/data/era2.json
-
 # ── local-only working notes ──────────────────────────────────────────
 THEME-HANDOFF.md
 DEV-HANDOFF.md

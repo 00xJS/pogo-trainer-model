@@ -164,7 +164,7 @@ function renderHero() {
     `<span class="chip ok"><span class="dot"></span><b>${fmt(m.n)}</b> trainers</span>`,
     `<span class="chip"><span class="dot"></span>levels <b>${Math.min(...t.map((r) => r.level))}–${Math.max(...t.map((r) => r.level))}</b></span>`,
     `<span class="chip teal"><span class="dot"></span><b>${capped}</b> at the level cap</span>`,
-    `<span class="chip"><span class="dot"></span>captured <b>${m.capturedAt}</b></span>`,
+    `<span class="chip"><span class="dot"></span>as of <b>${m.capturedAt}</b></span>`,
     m.distanceUnitAssumed ? `<span class="chip warn"><span class="dot"></span>distance unit assumed km</span>` : "",
   ].join("");
 }
@@ -604,8 +604,8 @@ function renderPlaystyle() {
 
 /* ═══════════════════════ 7 · the new era (cap 80) ═══════════════════════ */
 
-// Renders only if site/data/era2.json exists — the chapter self-activates the
-// first time the cap-80 capture pipeline produces data. The 2025 dataset and
+// Renders only if site/data/era2.json exists — the chapter self-activates
+// once the cap-80 era has data. The 2025 dataset and
 // this one are different eras (XP/level rebalance) and are never mixed.
 let ERA2 = null;
 const ERA2_STATE = { metric: "caught" };
@@ -624,7 +624,7 @@ function renderEra2() {
     `<span class="chip ok"><span class="dot"></span><b>${fmt(ERA2.meta.n)}</b> trainers</span>`,
     `<span class="chip"><span class="dot"></span>levels <b>${labels[0]}–${labels.at(-1)}</b></span>`,
     capped ? `<span class="chip teal"><span class="dot"></span><b>${capped.n}</b> at the level-80 cap</span>` : "",
-    ERA2.meta.captures.length > 1 ? `<span class="chip"><span class="dot"></span><b>${ERA2.meta.captures.length}</b> captures</span>` : "",
+    ERA2.meta.captures.length > 1 ? `<span class="chip"><span class="dot"></span><b>${ERA2.meta.captures.length}</b> snapshots</span>` : "",
     // Say what's missing, not just what's here — same honesty as the era-1 limitations row.
     ERA2.meta.nExcludedPendingReview
       ? `<span class="chip warn"><span class="dot"></span><b>${fmt(ERA2.meta.nExcludedPendingReview)}</b> excluded pending review</span>` : "",
@@ -673,10 +673,52 @@ function renderEra2() {
   });
 }
 
+// Both eras' median-per-level curves on one linear level axis. Era-1 medians
+// are masked below the same n>=5 floor the era-2 build applies, so neither line
+// ever asserts a "typical trainer" from one person's numbers.
+function renderCompare() {
+  if (!ERA2 || !DATA) return;
+  const M = METRICS[ERA2_STATE.metric];
+  const MIN_N = ERA2.meta.minNForQuartiles ?? 5;
+  const era1 = DATA.perLevel
+    .filter((l) => l.n >= MIN_N)
+    .map((l) => ({ x: l.level, y: l.median[M.key] }));
+  const era2 = ERA2.perLevel
+    .filter((l) => l[M.key].median !== null)
+    .map((l) => ({ x: l.level, y: l[M.key].median }));
+
+  mount("chart-compare", {
+    type: "line",
+    data: { datasets: [
+      { label: "2025 · cap 50", data: era1, borderColor: C.teal, backgroundColor: C.teal,
+        borderWidth: 2.5, pointRadius: 3, tension: .25, spanGaps: false },
+      { label: "2026 · cap 80", data: era2, borderColor: C.yellow, backgroundColor: C.yellow,
+        borderWidth: 2.5, pointRadius: 3, tension: .25, spanGaps: false },
+    ] },
+    options: {
+      maintainAspectRatio: false,
+      interaction: { mode: "nearest", intersect: false },
+      plugins: {
+        legend: { position: "top", align: "start" },
+        tooltip: { callbacks: {
+          title: (i) => `Level ${i[0].parsed.x}`,
+          label: (i) => `${i.dataset.label}: ${fmt(i.parsed.y, M.key === "distance" ? 1 : 0)}${M.unit} median`,
+        } },
+      },
+      scales: {
+        x: { type: "linear", min: 0, max: 82,
+             title: { display: true, text: "Trainer level (meaning differs between eras — that's the point)", color: C.faint, font: { size: 11 } },
+             grid: { color: C.grid }, ticks: { stepSize: 10 } },
+        y: { ...axis(`Median ${M.lower}` + (M.unit ? ` (${M.unit.trim()})` : "")), beginAtZero: true },
+      },
+    },
+  });
+}
+
 async function initEra2() {
   try {
     const res = await fetch("data/era2.json");
-    if (!res.ok) return;                       // no capture yet — chapter stays hidden
+    if (!res.ok) return;                       // no era-2 data yet — chapter stays hidden
     ERA2 = await res.json();
   } catch { return; }
   document.getElementById("era2").hidden = false;
@@ -685,7 +727,8 @@ async function initEra2() {
   nav.textContent = "New era";
   document.querySelector(".nav-pages").appendChild(nav);
   renderEra2();
-  segment("seg-era2", "metric", ERA2_STATE, renderEra2);
+  renderCompare();
+  segment("seg-era2", "metric", ERA2_STATE, () => { renderEra2(); renderCompare(); });
 }
 
 /* ═══════════════════════ wiring ═══════════════════════ */

@@ -40,8 +40,7 @@
     <div class="callout" style="margin-top:18px">
       <b>This describes the 2025 game, when the level cap was 50.</b> Pokémon GO has since
       rebalanced XP and raised the cap to 80, so the levels below are <em>not</em> comparable
-      to the current game. A fresh capture of the same friends list is in progress and will
-      be published as its own era.
+      to the current game. A fresh snapshot of the same friends list starts the record over as its own era below.
     </div>
     <div class="chip-row" id="hero-chips"></div>
   </header>
@@ -52,7 +51,7 @@
       <div class="eyebrow">01 — The cohort</div>
       <h2>Who's in this dataset</h2>
       <p>
-        Every trainer here came from one person's friends list, captured as a single
+        Every trainer here came from one person's friends list, recorded as a single
         snapshot in February 2025. That makes it a real sample of real players — and also a biased one.
         Both things are worth knowing before you read anything else on this page.
       </p>
@@ -93,11 +92,11 @@
           </div>
           <div class="stat">
             <span class="label">Single snapshot</span>
-            <div class="sub">One capture, no timestamps per row. Totals are cumulative and lifetime — there's no way to tell a five-year casual from a one-year grinder.</div>
+            <div class="sub">One snapshot, no timestamps per row. Totals are cumulative and lifetime — there's no way to tell a five-year casual from a one-year grinder.</div>
           </div>
           <div class="stat">
             <span class="label">Assumed units</span>
-            <div class="sub">Distance is recorded as a bare number and assumed to be kilometres. The original capture didn't record the unit setting.</div>
+            <div class="sub">Distance is recorded as a bare number and assumed to be kilometres. The original snapshot didn't note the unit setting.</div>
           </div>
         </div>
       </div>
@@ -267,8 +266,8 @@
           <b>Reading this:</b> far right = catches a lot per kilometre walked (lures,
           incense, dense city play). Far top = battles heavily relative to catching
           (raiders and PvP players). Bottom left = walkers who cover ground without
-          farming it. A third axis — catches per PokéStop — arrives with the next data
-          capture.
+          farming it. A third axis — catches per PokéStop — may join in a future
+          snapshot.
         </div>
       </div>
     </div>
@@ -282,7 +281,7 @@
       <p>
         Everything above describes the 2025 game, when 50 was the ceiling. Pokémon GO has
         since rebalanced XP and raised the cap to 80 — so levels aren't comparable across
-        the eras, and this chapter starts the record over with a fresh capture of the same
+        the eras, and this chapter starts the record over with a fresh snapshot of the same
         friends list. Typical catches, battles and distance at every level, post-rebalance.
       </p>
     </div>
@@ -297,7 +296,7 @@
             <button data-metric="distance" aria-pressed="false">Distance walked</button>
           </div>
         </div>
-        <span class="chip teal"><span class="dot"></span>captured <b id="era2-date">—</b></span>
+        <span class="chip teal"><span class="dot"></span>as of <b id="era2-date">—</b></span>
       </div>
       <div class="panel-body">
         <div class="chip-row" id="era2-chips" style="margin:0 0 14px"></div>
@@ -306,6 +305,23 @@
           <b>Reading this:</b> the line is the median trainer at each level; the band spans
           the middle half of them (25th–75th percentile). Bars along the bottom show how
           many trainers sit at each level. Levels with fewer than five trainers are left blank — at that size a “median” is just one person's numbers, so publishing it would be neither an average nor anonymous.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-chrome">
+        <span class="panel-title">The level curve, before and after the rebalance</span>
+        <span class="chip"><span class="dot"></span>same friends list, two eras</span>
+      </div>
+      <div class="panel-body">
+        <div class="chart-wrap"><canvas id="chart-compare"></canvas></div>
+        <div class="callout" style="margin-top:16px">
+          <b>Reading this:</b> both lines are the median trainer at each level — teal for the
+          2025 game (cap 50), yellow for the rebalanced game (cap 80). The rebalance re-mapped
+          everyone onto a longer ladder: the same population that once piled up at 50 now
+          spreads across the 60s and 70s, so a given level means <em>less</em> lifetime play
+          than it used to. Levels with fewer than five trainers are left blank in both eras.
         </div>
       </div>
     </div>
@@ -318,7 +334,7 @@
   <a href="https://github.com/00xJS">JS</a> &middot;
   <a href="https://github.com/00xJS/pogo-trainer-model">GitHub</a>
   <div class="fine">
-    Built from a personal friends-list snapshot of 390 trainers, captured February 2025.
+    Built from a personal friends-list snapshot of 390 trainers, recorded February 2025.
     Handles are replaced with placeholders; every stat is real and unmodified.
     Independent fan project — not affiliated with, endorsed by, or
     sponsored by Niantic, Scopely, Nintendo, or The Pokémon Company. Pokémon and Pokémon GO

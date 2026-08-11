@@ -1,6 +1,6 @@
 # POGO Trainer Model
 
-**390 real Pokémon GO trainers, plotted — and an honest look at what trainer level can and can't predict.**
+**One friends list, two eras of Pokémon GO — 390 trainers under the old level-50 cap, 491 under the new cap of 80 — and an honest look at what trainer level can and can't predict.**
 
 This started as a Jupyter notebook fitting a linear regression of trainer level against
 three in-game stats. It's now an interactive dashboard built on the same data, plus a
@@ -22,10 +22,11 @@ See [Running it locally](#running-it-locally); a hosted link goes here once it's
 | **The level-50 wall** | The spread inside the cap, and why it ceilings any level-based model |
 | **Model report card** | The original model marked against two alternatives and against reality |
 | **Playstyle** | Catches per km vs. battles per catch — level-independent, so it sidesteps the cap entirely |
+| **The new era** | The same friends list re-recorded under the cap-80 rebalance: typical stats at every level, and both eras' level curves side by side |
 
 ## The data
 
-A snapshot of one personal friends list, captured **February 2025**, when the level cap
+A snapshot of one personal friends list, recorded **February 2025**, when the level cap
 was still 50.
 
 **Handles are replaced** with `Trainer 001` … `Trainer 390`. Every stat is real and
@@ -36,7 +37,7 @@ analysis never needed their handles.
 |---|---|
 | `level` | 23–50. 50 was the cap at the time |
 | `battleswon` | Lifetime cumulative |
-| `distancewalked` | Lifetime cumulative. **Unit assumed km** — the capture didn't record the setting |
+| `distancewalked` | Lifetime cumulative. **Unit assumed km** — the snapshot didn't note the setting |
 | `pokemoncaught` | Lifetime cumulative |
 
 At a glance: median level 42 · median 27,184 caught · median 1,800 battles won ·
@@ -86,7 +87,8 @@ site/                    the dashboard (netlify.toml publishes this as-is)
 ├── index.html
 ├── css/style.css
 ├── js/app.js            stats engine + every chapter
-├── data/trainers.json   built artifact — anonymised
+├── data/                trainers.json (2025, placeholder names) and
+│                        era2.json (cap-80, ID-only aggregates + rows)
 └── vendor/              Chart.js + fonts, vendored (zero external requests)
 historic/                the original 2025 project, archived
 ├── stats-model.ipynb    the notebook this all started as
@@ -112,9 +114,12 @@ loaded with `fetch()`, which `file://` blocks.
 - **One snapshot, no per-row timestamps.** Totals are lifetime cumulative, so a five-year
   casual and a one-year grinder are indistinguishable.
 - **Distance units are assumed, not recorded.**
-- **This describes the pre-rebalance game.** Pokémon GO has since reworked XP and raised
-  the cap to 80, so these levels are not comparable to the current game. A second era is
-  in progress and will be published when it's complete.
+- **Two eras, not one timeline.** Chapters 1–6 describe the pre-rebalance game (cap 50);
+  the final chapter re-starts the record under the current cap-80 game. Levels are not
+  comparable across the eras — that incomparability is chapter 7's whole subject.
+- **The era-2 data is aggregate-first.** Per-trainer rows carry a stable ID
+  (`T001`…), never a handle; per-level statistics are withheld below five trainers so
+  no line on a chart is ever one person's exact numbers.
 
 ## Part of the Observation Deck
 
